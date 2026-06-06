@@ -20,20 +20,38 @@ void initializeCanvas(){
 void displayCanvas(){
     int i,j;
     printf("\n");
-    printf("  ");
-    for(j=0; j<COLS; j++){
-        printf("%d",j%10);
 
-    }
-    printf("\n");
+printf("   ");
+    for(j=0; j<COLS; j++)
+{
+    printf("%d",j%10);
+}
+
+     printf("\n");
+
+     printf("   ");
+for(j=0; j<COLS; j++)
+{
+    printf("-");
+}
+
+printf("\n");
     for(int i=0; i<ROWS; i++){
-        printf("%2d",i);
+        printf("%2d|",i);
         for(j=0; j<COLS;j++){
             printf("%c",canvas[i][j]);
 
         }
-        printf("\n");
+        printf("|\n");
     }
+    printf("   ");
+
+for(j=0; j<COLS; j++)
+{
+    printf("-");
+}
+    printf("\n");
+
     printf("\n");
 }
 
@@ -45,6 +63,7 @@ void clearCanvas(){
 void plotPoint(int x, int y);
 void drawLine(int x1, int y1, int x2, int y2);
 
+ 
 int main()
 {
     int choice;
@@ -57,6 +76,7 @@ int main()
         printf("===================================\n");
         printf("       ASCII GRAPHICS EDITOR\n");
         printf("===================================\n");
+        printf("Canvas Size : %d x %d\n", ROWS, COLS);
         printf("1. Draw Line\n");
         printf("2. Display Canvas\n");
         printf("3. Clear Canvas\n");
@@ -77,9 +97,11 @@ int main()
         printf("Enter Ending Point (row col): ");
         scanf("%d %d", &x2, &y2);
 
-        drawLine(x1, y1, x2, y2);
+        drawLine(x1, y1, x2, y2); 
 
         printf("Line Drawn Successfully!\n");
+        printf("Updated Canvas:\n\n");
+        displayCanvas();
         break;
     }
 
@@ -92,7 +114,7 @@ int main()
         break;
 
     case 4:
-        printf("Program Closed.\n");
+        printf("Program Closed Successfully.\n");
         return 0;
 
     default:
