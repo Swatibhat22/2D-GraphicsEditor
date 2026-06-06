@@ -63,6 +63,8 @@ void clearCanvas(){
 void plotPoint(int x, int y);
 void drawLine(int x1, int y1, int x2, int y2);
 
+void drawRectangle(int row, int col, int height, int width);
+void drawTriangle(int row, int col, int size);
  
 int main()
 {
@@ -78,9 +80,11 @@ int main()
         printf("===================================\n");
         printf("Canvas Size : %d x %d\n", ROWS, COLS);
         printf("1. Draw Line\n");
-        printf("2. Display Canvas\n");
-        printf("3. Clear Canvas\n");
-        printf("4. Exit\n");
+        printf("2.Draw Rectangle\n");
+        printf("3.Draw Triangle\n");
+        printf("4. Display Canvas\n");
+        printf("5. Clear Canvas\n");
+        printf("6. Exit\n");
         printf("Enter Choice : ");
 
         scanf("%d", &choice);
@@ -104,19 +108,56 @@ int main()
         displayCanvas();
         break;
     }
-
     case 2:
+    {
+        int row, col, height, width;
+
+        printf("Enter Top Row and Left Column: ");
+        scanf("%d %d", &row, &col);
+
+        printf("Enter Height and Width: ");
+        scanf("%d %d", &height, &width);
+
+        drawRectangle(row, col, height, width);
+
+        printf("\nRectangle Drawn Successfully!\n");
+
         displayCanvas();
         break;
+    }
 
     case 3:
+    {
+        int row, col, size;
+
+        printf("Enter Starting Row and Colomn:\n");
+        scanf("%d %d",&row, &col);
+
+        printf("Enter the size: ");
+        scanf("%d", &size);
+
+        drawTriangle(row,col,size);
+
+        printf("\n Triangle Drawn Successfully!\n");
+
+        displayCanvas();
+        break;
+    }
+    case 4:
+    {
+        displayCanvas();
+        break;
+    }
+    case 5:
+    {
         clearCanvas();
         break;
-
-    case 4:
+    }
+    case 6:
+    {
         printf("Program Closed Successfully.\n");
         return 0;
-
+    }
     default:
         printf("Invalid Choice!\n");
        }
@@ -155,4 +196,34 @@ void drawLine(int x1, int y1, int x2, int y2)
         x += xIncrement;
         y += yIncrement;
     }
+}
+
+void drawRectangle(int row, int col, int height, int width){
+    int i;
+    for(i=0; i<width; i++){
+        plotPoint(row, col+i);
+        plotPoint(row+height-1, col+i);
+    }
+
+    for(i=0; i<height; i++){
+        plotPoint(row+i,col);
+        plotPoint(row+i, col+width-1);
+    }
+}
+
+void drawTriangle(int row, int col, int size){
+    int i;
+    for(i=0; i<size; i++){
+        plotPoint(row+i, col);
+    }
+    for(i=0; i<size; i++){
+        plotPoint(row+size-1, col+i);
+
+    }
+    drawLine(
+        row,
+        col,
+        row+size-1,
+        col+size-1
+    );
 }
