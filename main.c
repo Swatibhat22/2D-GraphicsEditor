@@ -1,229 +1,306 @@
-#include <stdio.h>
+            #include <stdio.h>
 #include <stdlib.h>
-#define ROWS 20
-#define COLS 60
+#include <math.h>
 
-char canvas[ROWS][COLS];
-void initializeCanvas();
-void displayCanvas();
-void clearCanvas();
+#define ROWS 25
+#define COLS 50
 
-void initializeCanvas(){
-    int i,j;
-    for(i=0; i<ROWS; i++){
-        for(j=0; j<COLS; j++){
-            canvas[i][j]=' ';
+char buffer[ROWS][COLS];
+
+void initializeBuffer()
+{
+    for(int i=0;i<ROWS;i++)
+        for(int j=0;j<COLS;j++)
+            buffer[i][j]=' ';
+}
+
+void displayBuffer()
+{
+    for(int i=0;i<ROWS;i++)
+    {
+        for(int j=0;j<COLS;j++)
+            printf("%c",buffer[i][j]);
+        printf("\n");
+    }
+}
+
+int isCirclePoint(int x,int y,int cx,int cy,int r)
+{
+    int value=(x-cx)*(x-cx)+(y-cy)*(y-cy);
+    return abs(value-r*r)<=r;
+}
+
+void drawCircle(int cx,int cy,int r)
+{
+    for(int y=0;y<ROWS;y++)
+    {
+        for(int x=0;x<COLS;x++)
+        {
+            if(isCirclePoint(x,y,cx,cy,r))
+                buffer[y][x]='*';
         }
     }
 }
 
-void displayCanvas(){
-    int i,j;
-    printf("\n");
-
-printf("   ");
-    for(j=0; j<COLS; j++)
+void drawRectangle(int x,int y,int width,int height)
 {
-    printf("%d",j%10);
-}
+    int i;
 
-     printf("\n");
+    for(i=x;i<=x+width;i++)
+    {
+        if(i>=0 && i<COLS)
+        {
+            if(y>=0 && y<ROWS)
+                buffer[y][i]='*';
 
-     printf("   ");
-for(j=0; j<COLS; j++)
-{
-    printf("-");
-}
-
-printf("\n");
-    for(int i=0; i<ROWS; i++){
-        printf("%2d|",i);
-        for(j=0; j<COLS;j++){
-            printf("%c",canvas[i][j]);
-
+            if(y+height>=0 && y+height<ROWS)
+                buffer[y+height][i]='*';
         }
-        printf("|\n");
     }
-    printf("   ");
 
-for(j=0; j<COLS; j++)
+    for(i=y;i<=y+height;i++)
+    {
+        if(i>=0 && i<ROWS)
+        {
+            if(x>=0 && x<COLS)
+                buffer[i][x]='*';
+
+            if(x+width>=0 && x+width<COLS)
+                buffer[i][x+width]='*';
+        }
+    }
+}
+
+void drawTriangle(int x,int y,int h)
 {
-    printf("-");
+    for(int row=0;row<=h;row++)
+    {
+        int left=x-row;
+        int right=x+row;
+
+        if(y+row<ROWS)
+        {
+            if(left>=0 && left<COLS)
+                buffer[y+row][left]='*';
+
+            if(right>=0 && right<COLS)
+                buffer[y+row][right]='*';
+        }
+    }
+
+    int left=x-h;
+    int right=x+h;
+
+    if(y+h>=0 && y+h<ROWS)
+    {
+        for(int i=left;i<=right;i++)
+        {
+            if(i>=0 && i<COLS)
+                buffer[y+h][i]='*';
+        }
+    }
 }
-    printf("\n");
 
-    printf("\n");
+void drawLine(int x1,int y1,int x2,int y2)
+{
+    int dx=abs(x2-x1);
+    int dy=abs(y2-y1);
+
+    int sx=(x1<x2)?1:-1;
+    int sy=(y1<y2)?1:-1;
+
+    int err=dx-dy;
+
+    while(1)
+    {
+        if(x1>=0 && x1<COLS &&
+           y1>=0 && y1<ROWS)
+            buffer[y1][x1]='*';
+
+        if(x1==x2 && y1==y2)
+            break;
+
+        int e2=2*err;
+
+        if(e2>-dy)
+        {
+            err-=dy;
+            x1+=sx;
+        }
+
+        if(e2<dx)
+        {
+            err+=dx;
+            y1+=sy;
+        }
+    }
 }
 
-void clearCanvas(){
-    initializeCanvas();
-    printf("\nCanvas Cleared Successfully!\n");
+void deleteArea(int x,int y,int width,int height)
+{
+    for(int i=y;i<y+height;i++)
+    {
+        for(int j=x;j<x+width;j++)
+        {
+            if(i>=0 && i<ROWS &&
+               j>=0 && j<COLS)
+                buffer[i][j]=' ';
+        }
+    }
 }
 
-void plotPoint(int x, int y);
-void drawLine(int x1, int y1, int x2, int y2);
-
-void drawRectangle(int row, int col, int height, int width);
-void drawTriangle(int row, int col, int size);
- 
 int main()
 {
     int choice;
 
-    initializeCanvas();
+    initializeBuffer();
 
-    while(1)
+    do
     {
-        printf("\n");
-        printf("===================================\n");
-        printf("       ASCII GRAPHICS EDITOR\n");
-        printf("===================================\n");
-        printf("Canvas Size : %d x %d\n", ROWS, COLS);
-        printf("1. Draw Line\n");
-        printf("2.Draw Rectangle\n");
-        printf("3.Draw Triangle\n");
-        printf("4. Display Canvas\n");
-        printf("5. Clear Canvas\n");
-        printf("6. Exit\n");
-        printf("Enter Choice : ");
+        printf("\n===== SHAPE DRAWER =====\n");
+        printf("1. Draw Circle\n");
+        printf("2. Draw Rectangle\n");
+        printf("3. Draw Triangle\n");
+        printf("4. Draw Line\n");
+        printf("5. Delete Area\n");
+        printf("6. Modify Area\n");
+        printf("7. Display Picture\n");
+        
+        
+        printf("0. Exit\n");
 
-        scanf("%d", &choice);
+        printf("Enter Choice: ");
+        scanf("%d",&choice);
 
         switch(choice)
+        {
+            case 1:
+            {
+                int cx,cy,r;
+
+                printf("Center X Center Y Radius: ");
+                scanf("%d%d%d",&cx,&cy,&r);
+
+                drawCircle(cx,cy,r);
+                break;
+            }
+
+            case 2:
+            {
+                int x,y,w,h;
+
+                printf("X Y Width Height: ");
+                scanf("%d%d%d%d",&x,&y,&w,&h);
+
+                drawRectangle(x,y,w,h);
+                break;
+            }
+
+            case 3:
+            {
+                int x,y,h;
+
+                printf("ApexX ApexY Height: ");
+                scanf("%d%d%d",&x,&y,&h);
+
+                drawTriangle(x,y,h);
+                break;
+            }
+
+            case 4:
+            {
+                int x1,y1,x2,y2;
+
+                printf("X1 Y1 X2 Y2: ");
+                scanf("%d%d%d%d",&x1,&y1,&x2,&y2);
+
+                drawLine(x1,y1,x2,y2);
+                break;
+            }
+
+            case 5:
+            {
+                int x,y,w,h;
+
+                printf("X Y Width Height: ");
+                scanf("%d%d%d%d",&x,&y,&w,&h);
+
+                deleteArea(x,y,w,h);
+                break;
+            }
+            case 6:
+{
+    int x,y,w,h;
+    int shape;
+
+    printf("Area to modify (x y width height): ");
+    scanf("%d%d%d%d",&x,&y,&w,&h);
+
+    deleteArea(x,y,w,h);
+
+    printf("\n1.Circle\n");
+    printf("2.Rectangle\n");
+    printf("3.Triangle\n");
+    printf("4.Line\n");
+    printf("Enter new shape: ");
+    scanf("%d",&shape);
+
+    switch(shape)
     {
-    case 1:
-    {
-        int x1, y1, x2, y2;
+        case 1:
+        {
+            int cx,cy,r;
+            printf("CenterX CenterY Radius: ");
+            scanf("%d%d%d",&cx,&cy,&r);
+            drawCircle(cx,cy,r);
+            break;
+        }
 
-        printf("Enter Starting Point (row col): ");
-        scanf("%d %d", &x1, &y1);
+        case 2:
+        {
+            int rx,ry,rw,rh;
+            printf("X Y Width Height: ");
+            scanf("%d%d%d%d",&rx,&ry,&rw,&rh);
+            drawRectangle(rx,ry,rw,rh);
+            break;
+        }
 
-        printf("Enter Ending Point (row col): ");
-        scanf("%d %d", &x2, &y2);
+        case 3:
+        {
+            int tx,ty,th;
+            printf("ApexX ApexY Height: ");
+            scanf("%d%d%d",&tx,&ty,&th);
+            drawTriangle(tx,ty,th);
+            break;
+        }
 
-        drawLine(x1, y1, x2, y2); 
-
-        printf("Line Drawn Successfully!\n");
-        printf("Updated Canvas:\n\n");
-        displayCanvas();
-        break;
+        case 4:
+        {
+            int x1,y1,x2,y2;
+            printf("X1 Y1 X2 Y2: ");
+            scanf("%d%d%d%d",&x1,&y1,&x2,&y2);
+            drawLine(x1,y1,x2,y2);
+            break;
+        }
     }
-    case 2:
-    {
-        int row, col, height, width;
 
-        printf("Enter Top Row and Left Column: ");
-        scanf("%d %d", &row, &col);
+    break;
+}
+            
 
-        printf("Enter Height and Width: ");
-        scanf("%d %d", &height, &width);
+            case 7:
+                displayBuffer();
+                break;
 
-        drawRectangle(row, col, height, width);
+            case 0:
+                printf("Exiting...\n");
+                break;
 
-        printf("\nRectangle Drawn Successfully!\n");
+            default:
+                printf("Invalid Choice\n");
+        }
 
-        displayCanvas();
-        break;
-    }
-
-    case 3:
-    {
-        int row, col, size;
-
-        printf("Enter Starting Row and Colomn:\n");
-        scanf("%d %d",&row, &col);
-
-        printf("Enter the size: ");
-        scanf("%d", &size);
-
-        drawTriangle(row,col,size);
-
-        printf("\n Triangle Drawn Successfully!\n");
-
-        displayCanvas();
-        break;
-    }
-    case 4:
-    {
-        displayCanvas();
-        break;
-    }
-    case 5:
-    {
-        clearCanvas();
-        break;
-    }
-    case 6:
-    {
-        printf("Program Closed Successfully.\n");
-        return 0;
-    }
-    default:
-        printf("Invalid Choice!\n");
-       }
-    }
+    }while(choice!=0);
 
     return 0;
-}
-
-void plotPoint(int x, int y)
-{
-    if(x >= 0 && x < ROWS && y >= 0 && y < COLS)
-    {
-        canvas[x][y] = '*';
-    }
-}
-
-void drawLine(int x1, int y1, int x2, int y2)
-{
-    int dx = x2 - x1;
-    int dy = y2 - y1;
-
-    int steps = abs(dx) > abs(dy) ? abs(dx) : abs(dy);
-
-    float xIncrement = dx / (float)steps;
-    float yIncrement = dy / (float)steps;
-
-    float x = x1;
-    float y = y1;
-
-    int i;
-
-    for(i = 0; i <= steps; i++)
-    {
-        plotPoint((int)x, (int)y);
-
-        x += xIncrement;
-        y += yIncrement;
-    }
-}
-
-void drawRectangle(int row, int col, int height, int width){
-    int i;
-    for(i=0; i<width; i++){
-        plotPoint(row, col+i);
-        plotPoint(row+height-1, col+i);
-    }
-
-    for(i=0; i<height; i++){
-        plotPoint(row+i,col);
-        plotPoint(row+i, col+width-1);
-    }
-}
-
-void drawTriangle(int row, int col, int size){
-    int i;
-    for(i=0; i<size; i++){
-        plotPoint(row+i, col);
-    }
-    for(i=0; i<size; i++){
-        plotPoint(row+size-1, col+i);
-
-    }
-    drawLine(
-        row,
-        col,
-        row+size-1,
-        col+size-1
-    );
 }
